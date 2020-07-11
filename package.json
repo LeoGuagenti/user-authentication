@@ -1,5 +1,5 @@
 {
-  "name": "user-authentication",
+  "name": "socket-authentication",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
@@ -8,7 +8,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Leonardo",
-  "license": "MIT",
+  "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.0.0",
     "body-parser": "^1.19.0",

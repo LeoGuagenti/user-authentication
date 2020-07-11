@@ -20,7 +20,6 @@ app.listen(PORT, () => {
 })
 
 passport.use(new LocalStrategy({ usernameField: "username" }, (username, password, done) => {
-    console.log(`username: ${username}\npassword: ${password}`)
     try{
         mongo.connect(userDB, (connection_err, db) => {
             if (connection_err) throw connection_err
@@ -28,7 +27,7 @@ passport.use(new LocalStrategy({ usernameField: "username" }, (username, passwor
             db.collection('users').find({"username": username}).toArray((query_err, query_res) => {
                 if (query_err) throw query_err
                 if (query_res[0] === undefined || query_res[0] === null){
-                    console.log('undefined')
+                    console.log('user undefined')
                     return done(null, false)
                 }
 
@@ -62,7 +61,7 @@ app.use(session({
     secret: 'mystery',
     store: new FileStore(),
     resave: false,
-    saveUninitialized: true
+    saveUninitialized: true 
 }))
 app.use(passport.initialize())
 app.use(passport.session())
@@ -79,8 +78,9 @@ app.get('/', (req, res) => {
     }
 })
 
+// LOGIN ----------------------------------------
 app.get('/login', (req, res) => {
-    console.log(req.isAuthenticated())
+    console.log(req.isAuthenticated() ? 'user authenticated' : 'user not authenticated')
     if(req.isAuthenticated()){
         console.log('redirect to /')
         res.redirect('/')
@@ -109,4 +109,52 @@ app.post('/login', (req, res) => {
             res.redirect('/login')
         }       
     })(req, res)
+})
+
+// SIGNUP ----------------------------------------
+app.get('/signup', (req, res) => {
+    if(req.isAuthenticated()){
+        res.redirect('/')
+    }else{
+        fs.readFile('./client/routes/signup.html', (err, data) => {
+            res.write(data)
+            res.end()
+        })
+    }
+})
+
+app.post('/signup', (req, res) => {
+    const username = req.body.username
+    const password = req.body.password
+
+    console.log(`${username}\n${password}`)
+
+    try{
+        mongo.connect(userDB, (connection_err, db) => {
+            if (connection_err) throw connection_err
+
+            db.collection('users').find({"username": username}).toArray(async (query_err, query_res) => {
+                if (query_err) throw query_err
+                if (query_res[0] === undefined || query_res[0] == null){
+                    const hashedPassword = await bcrypt.hash(password, 10)
+                    
+                    db.collection('users').insertOne({username: username, password: hashedPassword}, (err) => {
+                        if (err) throw err
+
+                        res.redirect('/login')
+                    })
+                }else{
+                    res.redirect('/signup')
+                }
+            })
+        })
+    }catch(error){
+        console.log(error)
+    }  
+})
+
+app.get('/logout', (req, res) => {
+    req.session.destroy()
+    console.log(`User ${req.user.username} has logged out`)
+    res.redirect('/')
 })

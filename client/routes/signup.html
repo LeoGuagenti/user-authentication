@@ -14,16 +14,15 @@
         <label for="password">Password:</label><br>
         <input type="text" name="password"><br><br>
 
-        <input type="submit" value="Sign Up">
+        <div>
+            <input type="submit" value="Sign Up">
+            <input type="button" onclick="gotoLogin()" value="Log In">
+        </div>
     </form>
-    <script src="/socket.io/socket.io.js"></script>
     <script>
-        var client = io.connect('http://localhost:3000/signup')
-
-        client.on('redirect', destination => {
-            console.log(destination)
-            window.location.href = destination
-        })
+        function gotoLogin(){
+            window.location = "/login"
+        }
     </script>
 </body>
 </html>
