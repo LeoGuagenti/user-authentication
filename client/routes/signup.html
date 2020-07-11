@@ -16,5 +16,14 @@
 
         <input type="submit" value="Sign Up">
     </form>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var client = io.connect('http://localhost:3000/signup')
+
+        client.on('redirect', destination => {
+            console.log(destination)
+            window.location.href = destination
+        })
+    </script>
 </body>
 </html>
