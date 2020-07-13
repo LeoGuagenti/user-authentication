@@ -24,14 +24,14 @@ passport.use(new LocalStrategy({ usernameField: "username" }, (username, passwor
         mongo.connect(userDB, (connection_err, db) => {
             if (connection_err) throw connection_err
     
-            db.collection('users').find({"username": username}).toArray((query_err, query_res) => {
+            db.collection('users').find({"username": username}).toArray(async (query_err, query_res) => {
                 if (query_err) throw query_err
                 if (query_res[0] === undefined || query_res[0] === null){
                     console.log('user undefined')
                     return done(null, false)
                 }
 
-                if(bcrypt.compare(query_res[0].password, password)){
+                if(await bcrypt.compare(password, query_res[0].password)){
                     console.log('passwords match')
                     return done(null, query_res[0])
                 }else{
@@ -52,7 +52,6 @@ passport.serializeUser((user, done) => {
 passport.deserializeUser((user, done) => {
     done(null, user)
 })
-// const http = require('http').Server(app).listen(3000)
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
@@ -136,7 +135,7 @@ app.post('/signup', (req, res) => {
             db.collection('users').find({"username": username}).toArray(async (query_err, query_res) => {
                 if (query_err) throw query_err
                 if (query_res[0] === undefined || query_res[0] == null){
-                    const hashedPassword = await bcrypt.hash(password, 10)
+                    const hashedPassword = await bcrypt.hash(password, bcrypt.genSaltSync(10))
                     
                     db.collection('users').insertOne({username: username, password: hashedPassword}, (err) => {
                         if (err) throw err

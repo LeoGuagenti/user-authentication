@@ -7,14 +7,12 @@
 </head>
 <body>
     <h1>HOME</h1>
+    <input type="button" value="Log Out" onclick="gotoLogout();">
     <!-- <script src="/socket.io/socket.io.js"></script> -->
     <script>
-        // var client = io.connect('http://localhost:3000/')
-
-        // client.on('redirect', destination => {
-        //     console.log(destination)
-        //     window.location.href = destination
-        // })
+        function gotoLogout(){
+            window.location = "/logout"
+        }
     </script>
 </body>
 </html>
